@@ -1,0 +1,9 @@
+R4 <- (R1 + R1)
+R4 <- lsh(R4 + R4)
+L:
+MAR <- (R3 + R4)
+rd
+MAR <- (R3 + R4); rd
+R20 <- MBR
+(-R4); if Z goto L
+MAR <- R6; MBR <- R8; wr

@@ -42,14 +42,9 @@ class Micro16Parser extends JavaTokenParsers {
 
 object Micro16Simulator extends Micro16Parser {
 	def main(args: Array[String]) {
-		println(parseAll(statement, "R4 <- (R1 + R1)"))
-		println(parseAll(statement, "R4 <- lsh(R4 + R4)"))
-		println(parseAll(statement, "L:"))
-		println(parseAll(statement, "MAR <- (R3 + R4)"))
-		println(parseAll(statement, "rd"))
-		println(parseAll(statement, "MAR <- (R3 + R4); rd"))
-		println(parseAll(statement, "R20 <- MBR"))
-		println(parseAll(statement, "(-R4); if Z goto L"))
-		println(parseAll(statement, "MAR <- R6; MBR <- R8; wr"))
+		val lines = ( if(args.length == 0) io.Source.stdin.getLines
+		else io.Source.fromFile(args(0)).getLines )
+
+		lines.foreach( l => println(parseAll(statement, l)) )
 	}
 }
