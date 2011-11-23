@@ -6,4 +6,8 @@ Eventually, you'll be able to pass a textfile containing a Micro16 program to
 this simulator. It will then allow you to run the program, step through, it, etc.
 
 I'm taking advantage of Scala's parser-combinators to save a lot of time - the
-definition of the whole language only takes about 15 lines of code.
+definition of the whole language only takes about 15 lines of code. As far as I 
+know, it currently matches all valid micro16 code.
+
+This project is using sbt as a build tool. Just change into the project directory,
+execute sbt and type 'run'.
