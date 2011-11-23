@@ -1,0 +1,9 @@
+This is a Micro16 simulator written in Scala.
+
+Currently, it's in a very early stage, so don't expect too much ;)
+
+Eventually, you'll be able to pass a textfile containing a Micro16 program to 
+this simulator. It will then allow you to run the program, step through, it, etc.
+
+I'm taking advantage of Scala's parser-combinators to save a lot of time - the
+definition of the whole language only takes about 15 lines of code.
