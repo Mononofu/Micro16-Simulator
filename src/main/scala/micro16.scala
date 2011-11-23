@@ -1,4 +1,3 @@
-
 import scala.util.parsing.combinator._
 
 // registers 0 - 15 are normal registers
@@ -18,7 +17,7 @@ class Condition { }
 case class ifZero(condRegister: Register, negate: Boolean, target: Label) extends Condition
 case class ifNegative(condRegister: Register, negate: Boolean, target: Label) extends Condition
 
-class Micro16 extends JavaTokenParsers {
+class Micro16Parser extends JavaTokenParsers {
 	def statement: Parser[Any] =  ( label | flowControl | assignment~";"~statement ^^ { 
 		case ass~";"~(fun: List[_]) => ass :: fun
 		case ass~";"~fun => List(ass, fun)
@@ -41,7 +40,7 @@ class Micro16 extends JavaTokenParsers {
 }
 
 
-object Booo extends Micro16 {
+object Micro16Simulator extends Micro16Parser {
 	def main(args: Array[String]) {
 		println(parseAll(statement, "R4 <- (R1 + R1)"))
 		println(parseAll(statement, "R4 <- lsh(R4 + R4)"))
