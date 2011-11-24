@@ -26,8 +26,30 @@ case class Assignment(left: Register, right: Value) extends Statement {
 	override def execute { State.registers(left.n) = right.v }
 }
 class FlowControl extends Statement { }
-case class ifZero(condRegister: Register, negate: Boolean, target: Label) extends FlowControl
-case class ifNegative(condRegister: Register, negate: Boolean, target: Label) extends FlowControl
+case class ifZero(condRegister: Register, negate: Boolean, target: Label) extends FlowControl {
+	override def execute { 
+		if(negate) {
+			if( (~ condRegister.v) == 0)
+				State.execPointer = State.labels(target.name)
+		}
+		else {
+			if( condRegister.v == 0)
+				State.execPointer = State.labels(target.name)
+		}
+	}
+}
+case class ifNegative(condRegister: Register, negate: Boolean, target: Label) extends FlowControl {
+	override def execute { 
+		if(negate) {
+			if( (~ condRegister.v) < 0)
+				State.execPointer = State.labels(target.name)
+		}
+		else {
+			if( condRegister.v < 0)
+				State.execPointer = State.labels(target.name)
+		}
+	}
+}
 
 case class StatementSequence(statements: List[Statement]) extends Statement {
 	override def execute { statements.foreach(_.execute) }
@@ -78,6 +100,7 @@ object State {
 	def dump() {
 		println()
 		println("+++++++ Dumping State +++++++")
+		println("Execution Pointer: %02d".format(execPointer))
 		println("====== Registers ======")
 		registers.take(16).zipWithIndex.foreach(l => println(" %02d: %s".format(l._2, l._1)))
 		println("MAR: %s".format(registers(16)))
@@ -85,6 +108,9 @@ object State {
 		println("+++++++++++++++++++++++++++++")
 		println()
 	}
+
+	var execPointer = 0
+	val labels = new collection.mutable.HashMap[String, Int]()
 }
 
 object Micro16Simulator extends Micro16Parser {
@@ -94,16 +120,14 @@ object Micro16Simulator extends Micro16Parser {
 
 		State.dump()
 		val codeGraph = lines.map( l => parseAll(statement, l).get ).toArray
-		codeGraph.zipWithIndex.foreach(l => println("%02d: %s".format(l._2, l._1)))
-		val labels = new collection.mutable.HashMap[String, Int]()
+		codeGraph.zipWithIndex.foreach(l => println("%02d: %s".format(l._2, l._1)))	
 		codeGraph.zipWithIndex.foreach( t => t._1 match { 
-			case s: Label => labels(s.name) = t._2 
+			case s: Label => State.labels(s.name) = t._2 
 			case _ => } )
-		var execPointer = 0
-		while(execPointer < codeGraph.length) {
-			val statement = codeGraph(execPointer)
+		while(State.execPointer < codeGraph.length) {
+			val statement = codeGraph(State.execPointer)
 			statement.execute
-			execPointer += 1
+			State.execPointer += 1
 		}
 		State.dump()
 	}
