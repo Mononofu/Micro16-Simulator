@@ -25,30 +25,18 @@ case class Label(name: String) extends Statement
 case class Assignment(left: Register, right: Value) extends Statement {
 	override def execute { State.registers(left.n) = right.v }
 }
-class FlowControl extends Statement { }
-case class ifZero(condRegister: Register, negate: Boolean, target: Label) extends FlowControl {
+abstract class FlowControl(condRegister: Register, negate: Boolean, target: Label) extends Statement {
 	override def execute { 
-		if(negate) {
-			if( (~ condRegister.v) == 0)
-				State.execPointer = State.labels(target.name)
-		}
-		else {
-			if( condRegister.v == 0)
-				State.execPointer = State.labels(target.name)
-		}
+		if( checkValue( if(negate) (~ condRegister.v) else condRegister.v ))
+			State.execPointer = State.labels(target.name)
 	}
+	def checkValue(n: Int): Boolean 
 }
-case class ifNegative(condRegister: Register, negate: Boolean, target: Label) extends FlowControl {
-	override def execute { 
-		if(negate) {
-			if( (~ condRegister.v) < 0)
-				State.execPointer = State.labels(target.name)
-		}
-		else {
-			if( condRegister.v < 0)
-				State.execPointer = State.labels(target.name)
-		}
-	}
+case class ifZero(cr: Register, n: Boolean, t: Label) extends FlowControl(cr, n, t) {
+	override def checkValue(n: Int) = n == 0
+}
+case class ifNegative(cr: Register, n: Boolean, t: Label) extends FlowControl(cr, n, t) {
+	override def checkValue(n: Int) = n < 0
 }
 
 case class StatementSequence(statements: List[Statement]) extends Statement {
