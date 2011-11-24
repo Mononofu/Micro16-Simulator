@@ -94,15 +94,21 @@ object State {
 	val flash = (0 to 1023).map(n => 0xDEADBEEF).toArray
 
 	def dump() {
+		def formatNum(n: Int) = {
+			if(n == 0xDEADBEEF)
+				""
+			else
+				"0x%08x = %8d".format(n, n)
+		}
 		println()
 		println("+++++++ Dumping State +++++++")
 		println("Execution Pointer: %02d".format(execPointer))
 		println("====== Registers ======")
-		registers.take(maxRegister+1).zipWithIndex.foreach(l => println(" %02d: %s".format(l._2, l._1)))
-		println("MAR: %s".format(MAR))
-		println("MBR: %s".format(MBR))
+		registers.take(maxRegister+1).zipWithIndex.foreach(l => println(" %02d: %s".format(l._2, formatNum(l._1))))
+		println("MAR: %s".format(formatNum(MAR)))
+		println("MBR: %s".format(formatNum(MBR)))
 		println("====== Beginning of flash =====")
-		flash.take(20).zipWithIndex.foreach(l => println(" %02d: %s".format(l._2, l._1)))
+		flash.take(20).zipWithIndex.foreach(l => println(" %02d: %s".format(l._2, formatNum(l._1))))
 		println("+++++++++++++++++++++++++++++")
 		println()
 	}
