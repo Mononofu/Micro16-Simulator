@@ -5,22 +5,14 @@ import scala.util.parsing.combinator._
 // 16 is MAR
 // 17 is MBR
 class Value { def v: Int = -1}
-case class Register(n: Int) extends Value {
-	override def v = State.registers(n)
-}
-
+case class Register(n: Int) extends Value { override def v = State.registers(n) }
 case class Addition(a: Register, b: Register) extends Value {
 	override def v = State.registers(a.n) + State.registers(b.n)
 }
-case class LeftShift(a: Value) extends Value {
-	override def v = a.v * 2
-}
-case class RightShift(a: Value) extends Value {
-	override def v = a.v / 2
-}
+case class LeftShift(a: Value) extends Value { override def v = a.v * 2 }
+case class RightShift(a: Value) extends Value { override def v = a.v / 2 }
 
 class Statement { def execute {} }
-
 case class Label(name: String) extends Statement
 case class Assignment(left: Register, right: Value) extends Statement {
 	override def execute { State.registers(left.n) = right.v }
