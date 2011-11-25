@@ -60,6 +60,7 @@ class Micro16Parser extends JavaTokenParsers {
 			case ass~";"~fun => StatementSequence(List(ass, fun)) } 
 		| assignment 
 		| memoryAccess 
+		| emptyLine
 		| failure("illegal statement"))
 	def assignment: Parser[Assignment] = register~"<-"~value ^^ { case r~"<-"~v => Assignment(r, v) }
 	def register: Parser[Register] = ( 
@@ -89,6 +90,7 @@ class Micro16Parser extends JavaTokenParsers {
 					ifNegative(reg, neg, label) } )
 	def negate: Parser[Boolean] = "-" ^^ (x => true) | "" ^^ (x => false)
 	def condType: Parser[String] = "Z" | "N"
+	def emptyLine: Parser[Statement] = """^\s*$""".r ^^ (s => new Statement())
 }
 
 object State {

@@ -1,6 +1,6 @@
 R6 <- R0 // initial setup
 R7 <- R0
-R10 <- 74
+R10 <- 74 // just a test value
 R3 <- R0
 R5 <- lsh(R1 + R1) // 4
 R5 <- lsh(R5 + R5) // 16
@@ -11,11 +11,13 @@ R5 <- lsh(R5 + R5) // 4096
 R5 <- lsh(R5 + R5) // 16k
 R5 <- lsh(R5) // 32k - left most bit is 1
 goto S
+
 A: // state Z0
 R3 <- (R3 + R1)
 (R4); if Z goto S // only change state if input is 1
 R6 <- R1
 goto S
+
 B: // state Z1
 R6 <- R0
 R7 <- R1
@@ -23,10 +25,12 @@ goto S
 C:
 (R4); if Z goto B // only change s if I is 0
 goto S
+
 E: // state Z2
 (R4); if Z goto S
 R6 <- R1
 goto S
+
 G: // state Z3
 R3 <- (R3 + R1)
 goto H
@@ -37,6 +41,7 @@ goto S
 H:
 (R4); if Z goto I
 goto S
+
 S: // begin of main loop
 (R5); if Z goto Q // quit
 R4 <- (R10 & R5) // check current bit of R10, beginning from the left
@@ -45,7 +50,8 @@ R4 <- R1
 Y:
 R5 <- rsh(R5)	// right shift R5 so the next bit we check is to the right
 R3 <- lsh(R3)
-(R6); if Z goto M
+
+(R6); if Z goto M  // switch execution according to state
 (R7); if Z goto N
 goto G
 N:
@@ -55,4 +61,5 @@ M:
 goto E
 O:
 goto A
-Q:
+
+Q: // the end
