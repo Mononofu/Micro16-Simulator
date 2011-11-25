@@ -14,10 +14,10 @@ MAR <- R4; rd
 rd
 R5 <- MBR  	// this is the number we want to divide
 
-S:
+START:
 R5 <- (R5 + R3) // substract divisor
 R6 <- (R6 + R1) 
-(-R5); if N goto S // repeat until R5 becomes negative
+(-R5); if N goto START // repeat until R5 becomes negative
 R6 <- (R6 + R2) // substract one from result since we iterate one time too often
 
 R4 <- (R4 + R1) 	// increment to 17 for result adress

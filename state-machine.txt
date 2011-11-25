@@ -15,39 +15,38 @@ R5 <- lsh(R5) 		// 32k - left most bit is 1
 R11 <- -R5			// mask to zero MSB
 R12 <- (R2 + R2)		// mask to zero LSB
 
-goto S
+goto START
 
-A: // state Z0
+STATE_0: 
 R3 <- (R3 + R1)
-(R4); if Z goto S // only change state if input is 1
+(R4); if Z goto START // only change state if input is 1
 R6 <- R1
-goto S
+goto START
 
 B: // state Z1
 R6 <- R0
 R7 <- R1
-goto S
-C:
+goto START
+STATE_1:
 (R4); if Z goto B // only change s if I is 0
-goto S
+goto START
 
-E: // state Z2
-(R4); if Z goto S
+STATE_2: 
+(R4); if Z goto START
 R6 <- R1
-goto S
+goto START
 
-G: // state Z3
+STATE_3: 
 R3 <- (R3 + R1)
 goto H
 I:
 R6 <- R0
 R7 <- R0
-goto S
+goto START
 H:
 (R4); if Z goto I
-goto S
 
-S: // begin of main loop
+START: // begin of main loop
 (R5); if Z goto END 	// quit
 R4 <- (R10 & R5) 	// check current bit of R10, beginning from the left
 (R4); if Z goto Y 	// everythin is already 0
@@ -60,13 +59,13 @@ R3 <- (R3 & R12) // and also ensure that LSB is 0
 
 (R6); if Z goto M  // switch execution according to state
 (R7); if Z goto N
-goto G
+goto STATE_3
 N:
-goto C
+goto STATE_1
 M:
 (R7); if Z goto O
-goto E
+goto STATE_2
 O:
-goto A
+goto STATE_0
 
 END: // the end
