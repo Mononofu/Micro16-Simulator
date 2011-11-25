@@ -5,15 +5,18 @@ import scala.util.parsing.combinator._
 // registers 0 - 15 are normal registers
 // 16 is MAR
 // 17 is MBR
-class Value { def v: Int = -1}
-case class Register(n: Int) extends Value { override def v = State.registers(n) }
-case class Number(n: Int) extends Value { override def v = n }
+class Value { def v: Short = -1}
+case class Register(n: Short) extends Value { override def v: Short = State.registers(n) }
+case class Number(n: Short) extends Value { override def v: Short = n }
 case class Addition(a: Register, b: Register) extends Value {
-	override def v = State.registers(a.n) + State.registers(b.n)
+	override def v: Short = (a.v + b.v).toShort
 }
-case class LeftShift(a: Value) extends Value { override def v = a.v * 2 }
-case class RightShift(a: Value) extends Value { override def v = a.v / 2 }
-case class Negate(a: Value) extends Value { override def v = ~a.v }
+case class AND(a: Register, b: Register) extends Value {
+	override def v: Short = (a.v & b.v).toShort
+}
+case class LeftShift(a: Value) extends Value { override def v: Short = (a.v * 2).toShort }
+case class RightShift(a: Value) extends Value { override def v: Short = (a.v / 2).toShort }
+case class Negate(a: Value) extends Value { override def v: Short = (~a.v).toShort }
 
 class Statement { def execute() {} }
 case class Label(name: String) extends Statement
@@ -22,16 +25,19 @@ case class Assignment(left: Register, right: Value) extends Statement {
 }
 abstract class FlowControl(condRegister: Register, negate: Boolean, target: Label) extends Statement {
 	override def execute() { 
-		if( checkValue( if(negate) (~ condRegister.v) else condRegister.v ))
+		if( checkValue( if(negate) (~ condRegister.v).toShort else condRegister.v ))
 			State.execPointer = State.labels(target.name)
 	}
-	def checkValue(n: Int): Boolean 
+	def checkValue(n: Short): Boolean 
 }
 case class ifZero(cr: Register, n: Boolean, t: Label) extends FlowControl(cr, n, t) {
-	override def checkValue(n: Int) = n == 0
+	override def checkValue(n: Short) = n == 0
 }
 case class ifNegative(cr: Register, n: Boolean, t: Label) extends FlowControl(cr, n, t) {
-	override def checkValue(n: Int) = n < 0
+	override def checkValue(n: Short) = n < 0
+}
+case class Goto(target: Label) extends FlowControl(Register(0), false, target) {
+	override def checkValue(n: Short) = true
 }
 
 case class StatementSequence(statements: List[Statement]) extends Statement {
@@ -57,12 +63,13 @@ class Micro16Parser extends JavaTokenParsers {
 		| failure("illegal statement"))
 	def assignment: Parser[Assignment] = register~"<-"~value ^^ { case r~"<-"~v => Assignment(r, v) }
 	def register: Parser[Register] = ( 
-		"R"~"""\d{1,2}""".r ^^ { case "R"~num => Register(State.pMaxRegister.min(num.toInt)) }
+		"R"~"""\d{1,2}""".r ^^ { case "R"~num => Register(State.pMaxRegister.min(num.toShort).toShort) }
 		| "MAR" ^^ { case _ => Register(State.pMAR) } 
 		| "MBR" ^^ { case _ => Register(State.pMBR) } )
 	def value: Parser[Value] = number | register | function
-	def number: Parser[Number] = """\d+""".r ^^ (n => Number(n.toInt))
+	def number: Parser[Number] = """\d+""".r ^^ (n => Number(n.toShort))
 	def expression: Parser[Value] = ( register~"+"~register ^^ { case r1~"+"~r2 => Addition(r1, r2) } 
+		| register~"&"~register ^^ { case r1~"&"~r2 => AND(r1, r2) }
 		| register 
 		| function )
 	def function: Parser[Value] = ( "("~>expression<~")" 
@@ -73,7 +80,8 @@ class Micro16Parser extends JavaTokenParsers {
 	def labelName: Parser[Label] = "[A-Z]".r ^^ (Label(_))
 	def memoryAccess: Parser[MemoryAccess] = "rd" ^^ (m => ReadMemory() ) | "wr" ^^ (m => WriteMemory() )
 	def flowControl: Parser[FlowControl] = ( 
-		"("~negate~register~"); if"~condType~"goto"~labelName ^^ { 
+		"goto"~>labelName ^^ (Goto(_))
+		| "("~negate~register~"); if"~condType~"goto"~labelName ^^ { 
 			case "("~neg~reg~"); if"~condT~"goto"~label => 
 				if(condT == "Z") 
 					ifZero(reg, neg, label) 
@@ -85,45 +93,49 @@ class Micro16Parser extends JavaTokenParsers {
 
 object State {
 	val pMaxRegister = 15
-	val registers = new Array[Int](pMaxRegister + 3)
-	val pMAR = 16
-	val pMBR = 17
+	val registers = new Array[Short](pMaxRegister + 3)
+	val pMAR: Short = 16
+	val pMBR: Short = 17
 	def MAR = registers(pMAR)
-	def MAR_= (newVal: Int) { registers(pMAR) = newVal }
+	def MAR_= (newVal: Short) { registers(pMAR) = newVal }
 	def MBR = registers(pMBR)
-	def MBR_= (newVal: Int) { registers(pMBR) = newVal }
+	def MBR_= (newVal: Short) { registers(pMBR) = newVal }
 
 	// let's assume flash has a size of 1024 dwords
-	val flash = new Array[Int](1024)
+	val flash = new Array[Short](1024)
 
 	var execPointer = 0
-	val labels = new collection.mutable.HashMap[String, Int]()
+	val labels = new collection.mutable.HashMap[String, Short]()
 	reset()
 
 	def dump() = {
-		def formatNum(n: Int) = {
-			if(n == 0xDEADBEEF)
+		def formatNum(n: Short) = {
+			def getBinary(a: Short) = (0 to 15).map(n => (a >> n) & 1).reverse.mkString
+			if(n == 0xDEAD.toShort)
 				""
 			else
-				"0x%08x = %8d".format(n, n)
+				"%s = 0x%04X = %4d".format(
+					getBinary(n).zipWithIndex.map(t => if(t._2 % 4 == 0) " " + t._1 else t._1).mkString.substring(1), 
+					n, 
+					n)
 		}
 		var out = ""
 		out += "Execution Pointer: %02d\n".format(execPointer)
-		out +="======== Registers ========\n"
+		out +="========== Registers ==========\n"
 		registers.take(pMaxRegister+1).zipWithIndex.foreach(l => out +="R%02d: %s\n".format(l._2, formatNum(l._1)))
 		out +="MAR: %s\n".format(formatNum(MAR))
 		out +="MBR: %s\n".format(formatNum(MBR))
-		out +="=== Beginning of flash ===\n"
+		out +="===== Beginning of flash =====\n"
 		flash.take(20).zipWithIndex.foreach(l => out +=" %02d: %s\n".format(l._2, formatNum(l._1)))
 		out
 	}
 
 	def reset() {
-		(0 to (pMaxRegister + 2)).foreach(n => registers(n) = 0xDEADBEEF)
+		(0 to (pMaxRegister + 2)).foreach(n => registers(n) = 0xDEAD.toShort)
 		registers(0) =  0
 		registers(1) =  1
 		registers(2) = -1
-		(0 to 1023).foreach(n => flash(n) = 0xDEADBEEF)
+		(0 to 1023).foreach(n => flash(n) = 0xDEAD.toShort)
 		labels.clear()
 		execPointer = 0
 	}
@@ -131,14 +143,24 @@ object State {
 }
 
 object Micro16Simulator extends Micro16Parser {
-	var codeGraph = new Array[Statement](1)
+	var codeGraph = new Array[Statement](0)
 
 	def loadCode(code: String) {
 		State.reset()
-		codeGraph = code.split('\n') .map( l => parseAll(statement, l).get ).toArray
+		codeGraph = code.split('\n').zipWithIndex.map( l => {
+			var s = new Statement()
+			val line = l._1.split("//")(0) // strip comments
+			try { s = parseAll(statement, line).get }
+			catch {
+				case e: Exception => 
+					println("Parsing line %d failed: %s".format(l._2 + 1, line))
+					e.printStackTrace
+			}
+			s
+			} ).toArray
 	
 		codeGraph.zipWithIndex.foreach( t => t._1 match { 
-			case s: Label => State.labels(s.name) = t._2 
+			case s: Label => State.labels(s.name) = t._2.toShort 
 			case _ => } )
 	}
 

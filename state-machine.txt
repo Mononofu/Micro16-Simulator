@@ -1,0 +1,50 @@
+R6 <- R0
+R7 <- R0
+R10 <- 74
+R3 <- 0
+R5 <- lsh(R1 + R1)
+R5 <- lsh(R5 + R5)
+goto S
+A: // state Z0
+R3 <- (R3 + R1)
+(R4); if Z goto S // only change state if input is 1
+R6 <- R1
+goto S
+B: // state Z1
+R6 <- R0
+R7 <- R1
+goto S
+C:
+(R4); if Z goto B // only change s if I is 0
+goto S
+E: // state Z2
+(R4); if Z goto S
+R6 <- R1
+goto S
+G: // state Z3
+R3 <- (R3 + R1)
+goto H
+I:
+R6 <- R0
+R7 <- R0
+goto S
+H:
+(R4); if Z goto I
+goto S
+S: // begin of main loop
+(R5); if Z goto Q // quit
+R5 <- (R5 + R2)
+R4 <- (R10 & R1)
+R10 <- rsh(R10)
+R3 <- lsh(R3)
+(R6); if Z goto M
+(R7); if Z goto N
+goto G
+N:
+goto C
+M:
+(R7); if Z goto O
+goto E
+O:
+goto A
+Q:
