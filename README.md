@@ -14,7 +14,7 @@ in the slides of TGI class, but I do my best to ensure it is.
 Screenshot
 ==========
 
-![Screen shot 1](http://i.imgur.com/tUgkd.png)
+![Screen shot 1](http://i.imgur.com/wP4Zm.png)
 
 Usage
 =====
