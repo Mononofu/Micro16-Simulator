@@ -14,8 +14,8 @@ case class Addition(a: Register, b: Register) extends Value {
 case class AND(a: Register, b: Register) extends Value {
 	override def v: Short = (a.v & b.v).toShort
 }
-case class LeftShift(a: Value) extends Value { override def v: Short = (a.v * 2).toShort }
-case class RightShift(a: Value) extends Value { override def v: Short = (a.v / 2).toShort }
+case class LeftShift(a: Value) extends Value { override def v: Short = (a.v << 1).toShort }
+case class RightShift(a: Value) extends Value { override def v: Short = (a.v >> 1).toShort }
 case class Negate(a: Value) extends Value { override def v: Short = (~a.v).toShort }
 
 class Statement { def execute() {} }

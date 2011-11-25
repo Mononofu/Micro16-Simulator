@@ -1,0 +1,37 @@
+R3 <- 16 	// how many places do we want to shift
+R3 <- -R3
+R10 <- 382 	// number to shift
+
+	// our mask for left most bit
+R5 <- lsh(R1 + R1) // 4
+R5 <- lsh(R5 + R5) // 16
+R5 <- lsh(R5 + R5) // 64
+R5 <- lsh(R5 + R5) // 256
+R5 <- lsh(R5 + R5) // 1024
+R5 <- lsh(R5 + R5) // 4096
+R5 <- lsh(R5 + R5) // 16k
+R5 <- lsh(R5) // 32k - left most bit is 1
+R7 <- -R5			// mask to zero MSB
+R8 <- (R2 + R2)		// mask to zero LSB
+
+(R3); if N goto N
+S:		// branch for positive R3 - left shift
+(R3); if Z goto E
+R3 <- (R3 + R2)
+R6 <- (R10 & R5)	// save MSB
+R10 <- lsh(R10)
+R10 <- (R10 & R8)	// make sure LSB is 0
+(R6); if Z goto S 	// if the MSB was 0, start new iteration
+R10 <- (R10 + R1)	// if it was 1, set the LSB to 1
+goto S
+
+N:		// branch for negative R3 - right shift
+(R3); if Z goto E
+R3 <- (R3 + R1)
+R6 <- (R10 & R1)	// save LSB
+R10 <- rsh(R10)
+R10 <- (R7 & R10)	// make sure MSB is 0
+(R6); if Z goto N 	
+R10 <- (R10 + R5)	// LSB was 1, so set MSB to 1
+goto N
+E: 		// the end

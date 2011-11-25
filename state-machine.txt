@@ -2,6 +2,8 @@ R6 <- R0 // initial setup
 R7 <- R0
 R10 <- 74 // just a test value
 R3 <- R0
+
+	// our mask for MSB
 R5 <- lsh(R1 + R1) // 4
 R5 <- lsh(R5 + R5) // 16
 R5 <- lsh(R5 + R5) // 64
@@ -9,7 +11,10 @@ R5 <- lsh(R5 + R5) // 256
 R5 <- lsh(R5 + R5) // 1024
 R5 <- lsh(R5 + R5) // 4096
 R5 <- lsh(R5 + R5) // 16k
-R5 <- lsh(R5) // 32k - left most bit is 1
+R5 <- lsh(R5) 		// 32k - left most bit is 1
+R11 <- -R5			// mask to zero MSB
+R12 <- (R2 + R2)		// mask to zero LSB
+
 goto S
 
 A: // state Z0
@@ -43,13 +48,15 @@ H:
 goto S
 
 S: // begin of main loop
-(R5); if Z goto Q // quit
-R4 <- (R10 & R5) // check current bit of R10, beginning from the left
-(R4); if Z goto Y
-R4 <- R1
+(R5); if Z goto Q 	// quit
+R4 <- (R10 & R5) 	// check current bit of R10, beginning from the left
+(R4); if Z goto Y 	// everythin is already 0
+R4 <- R1 			// otherwise, we want to make sure only the LSB is set
 Y:
-R5 <- rsh(R5)	// right shift R5 so the next bit we check is to the right
-R3 <- lsh(R3)
+R5 <- rsh(R5)	 // right shift R5 so the next bit we check is to the right
+R5 <- (R5 & R11) // and make sure the MSB is 0
+R3 <- lsh(R3)	 // left shift R3 to make room for the next output
+R3 <- (R3 & R12) // and also ensure that LSB is 0
 
 (R6); if Z goto M  // switch execution according to state
 (R7); if Z goto N
