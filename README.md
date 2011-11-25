@@ -21,7 +21,9 @@ Precompiled .jar
 
 This is the easy way: just head over to the downloads section, grab the newest
 .jar and execute it like this:
+
         java -jar micro16-sim-0.2.jar state-machine.txt
+
 
 Compiling from source
 ---------------------
@@ -30,7 +32,9 @@ This is for those who want bleeding edge code. While I'm trying to keep the code
 working at all times, it may still be broken. So use this at your own risk.
 
 Clone this git repository to some directory on your PC, then type 
+
         sbt run state-machine.txt
+
 to compile and run. (Note: you need sbt setup first, of course)
 
 Implementation
