@@ -1,0 +1,68 @@
+R10 <- 12681
+
+R4 <- lsh(R1 + R1) 	// 4
+R4 <- (R4 + R4)		// 8
+R3 <- R0 		// and this is where we store our result
+R11 <- R1		// this is what we use to check bit n
+R12 <- (R2 + R2)		// mask to zero LSB
+
+ // copy the 8 leftmost bits to the right, but mirrored
+START:
+(R4); if Z goto END	// repeat 8 times
+R4 <- (R4 + R2)
+R6 <- (R10 & R11)	// check bit n
+R3 <- lsh(R3)
+R3 <- (R3 & R12)	// left shift and make sure LSB is zero
+R11 <- lsh(R11)
+R11 <- (R11 & R12)	// left shift and make sure LSB is zero
+(R6); if Z goto START	// if bit n was zero, just iterate again
+R3 <- (R3 + R1)		// otherwise, we need to add one
+goto START
+END:
+
+R4 <- lsh(R1 + R1) 	// 4
+R4 <- (R4 + R4)		// 8
+		// then, shift them all the way to the left
+
+START_2:
+(R4); if Z goto END_2	// repeat 8 times
+R4 <- (R4 + R2)
+R3 <- lsh(R3)
+R3 <- (R3 & R12)	// left shift and make sure LSB is zero
+goto START_2
+END_2:
+
+ // now, we just need to zero out the leftmost part of R10
+ // and then we can do R10 - R3
+ // if it's 0, we have a palindrome
+ // otherwise, not
+
+R4 <- lsh(R1 + R1) 	// 4
+R4 <- (R4 + R4)		// 8
+		// then, shift them all the way to the left
+	
+R7 <- R0
+
+START_3:
+(R4); if Z goto END_3	// repeat 8 times
+R4 <- (R4 + R2)
+R7 <- lsh(R7)
+R7 <- (R7 + R1)
+goto START_3
+END_3:
+R7 <- -R7
+
+R8 <- (R10 & R7)	// now, we can mask out the lower 8 bits of R10
+	// before we can substract, we need to negate R8
+	// since there is no native substraction
+R8 <- -R8
+R8 <- (R8 + R1)
+R9 <- (R8 + R3)
+(R9); if Z goto PALIND
+R9 <- R0
+goto FINISHED
+
+PALIND:
+R9 <- R2
+
+FINISHED:
