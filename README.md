@@ -8,6 +8,9 @@ Still, it currently understands and executes all valid micro16 code known to me
 It also allows you to single step through code while viewing registers, current
 execution position and memory, so it's quite useful to debug your programs.
 
+Note: I don't guarantee that this is exactly the same micro16-syntax as used
+in the slides of TGI class, but I do my best to ensure it is.
+
 Screenshot
 ==========
 
@@ -40,18 +43,8 @@ to compile and run. (Note: you need sbt setup first, of course)
 Implementation
 ==============
 I'm taking advantage of Scala's parser-combinators to save a lot of time - the
-definition of the whole language only takes about 30 lines of code. As far as I 
+definition of the whole language only takes about 35 lines of code. As far as I 
 know, it currently matches all valid micro16 code.
 
-This project is using sbt as a build tool. Just change into the project directory,
-execute sbt and type 'run'.
-
-Alternatively, you can just download the latest jar from github and execute it:
-java -jar micro16-assembly-1.0.jar micro16-code.txt
-
-If you want to load code from a file while running sbt, just add the file name
-after the run command, like this: 
-> run micro16-code.txt
-The search path is relative to the root of the project dir.
-If you run without arguments, the program will wait for input on stdin - either
-pipe it in or write it manually.
+If you find any micro16 code I haven't implemented yet, please tell so I can fix this.
+Pull-request are of course always welcome.
