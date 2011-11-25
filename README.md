@@ -22,7 +22,7 @@ Precompiled .jar
 This is the easy way: just head over to the downloads section, grab the newest
 .jar and execute it like this:
 
-        java -jar micro16-sim-0.2.jar state-machine.txt
+    java -jar micro16-sim-0.2.jar state-machine.txt
 
 
 Compiling from source
@@ -33,7 +33,7 @@ working at all times, it may still be broken. So use this at your own risk.
 
 Clone this git repository to some directory on your PC, then type 
 
-        sbt run state-machine.txt
+    sbt run state-machine.txt
 
 to compile and run. (Note: you need sbt setup first, of course)
 
