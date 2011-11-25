@@ -48,3 +48,13 @@ know, it currently matches all valid micro16 code.
 
 If you find any micro16 code I haven't implemented yet, please tell so I can fix this.
 Pull-request are of course always welcome.
+
+TODO
+====
+
+* allow not only registers, but also arithmetic expressions in an if condition
+* change comments to use # instead of //
+* allow to load files directly from the GUI
+* actually utilize the tab interface
+* add save functionality to allow useful editing
+* breakpoints!
