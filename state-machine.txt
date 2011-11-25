@@ -48,7 +48,7 @@ H:
 goto S
 
 S: // begin of main loop
-(R5); if Z goto Q 	// quit
+(R5); if Z goto END 	// quit
 R4 <- (R10 & R5) 	// check current bit of R10, beginning from the left
 (R4); if Z goto Y 	// everythin is already 0
 R4 <- R1 			// otherwise, we want to make sure only the LSB is set
@@ -69,4 +69,4 @@ goto E
 O:
 goto A
 
-Q: // the end
+END: // the end

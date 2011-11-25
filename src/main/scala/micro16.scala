@@ -78,7 +78,7 @@ class Micro16Parser extends JavaTokenParsers {
 		| "rsh("~>expression<~")" ^^ (RightShift(_))
 		| "-"~>register ^^ (Negate(_)))
 	def label: Parser[Label] = labelName<~":"
-	def labelName: Parser[Label] = "[A-Z]".r ^^ (Label(_))
+	def labelName: Parser[Label] = "[A-Z][A-Z0-9]*".r ^^ (Label(_))
 	def memoryAccess: Parser[MemoryAccess] = "rd" ^^ (m => ReadMemory() ) | "wr" ^^ (m => WriteMemory() )
 	def flowControl: Parser[FlowControl] = ( 
 		"goto"~>labelName ^^ (Goto(_))
