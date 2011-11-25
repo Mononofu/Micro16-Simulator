@@ -23,6 +23,7 @@ object Micro16SimulatorGUI extends SwingApplication {
 					fixedCellHeight = 15
 					font = new Font("Droid Sans Mono Dotted", 0, 12)
 				}
+				lineNumber.yLayoutAlignment = 1.0
 				contents += new BoxPanel(Orientation.Vertical) {
 					contents += new TabbedPane() {
 						pages += new TabbedPane.Page(src,
@@ -77,6 +78,7 @@ object Micro16SimulatorGUI extends SwingApplication {
 						Micro16Simulator.loadCode(textArea.text)
 						state.listData = State.dump().split('\n')
 						lineNumber.selectIndices( 0 )
+						lineNumber.listData = (1 to textArea.text.lines.length + 1).map("%02d \n".format(_))
 					}
 			}
 		}.open()
