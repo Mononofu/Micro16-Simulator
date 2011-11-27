@@ -8,10 +8,10 @@ import scala.util.parsing.combinator._
 class Value { def v: Short = -1}
 case class Register(n: Short) extends Value { override def v: Short = State.registers(n) }
 case class Number(n: Short) extends Value { override def v: Short = n }
-case class Addition(a: Register, b: Register) extends Value {
+case class Addition(a: Value, b: Value) extends Value {
 	override def v: Short = (a.v + b.v).toShort
 }
-case class AND(a: Register, b: Register) extends Value {
+case class AND(a: Value, b: Value) extends Value {
 	override def v: Short = (a.v & b.v).toShort
 }
 case class LeftShift(a: Value) extends Value { override def v: Short = (a.v << 1).toShort }
@@ -68,15 +68,17 @@ class Micro16Parser extends JavaTokenParsers {
 		| "MAR" ^^ { case _ => Register(State.pMAR) } 
 		| "MBR" ^^ { case _ => Register(State.pMBR) } )
 	def value: Parser[Value] = number | register | function
-	def number: Parser[Number] = """\d+""".r ^^ (n => Number(n.toShort))
-	def expression: Parser[Value] = ( register~"+"~register ^^ { case r1~"+"~r2 => Addition(r1, r2) } 
-		| register~"&"~register ^^ { case r1~"&"~r2 => AND(r1, r2) }
+	def number: Parser[Number] = ("-"~>"""\d+""".r ^^ (n => Number( (-1 * n.toShort).toShort )) 
+	| """\d+""".r ^^ (n => Number(n.toShort)) )
+	def expression: Parser[Value] = ( value~"+"~value ^^ { case r1~"+"~r2 => Addition(r1, r2) } 
+		| value~"&"~value ^^ { case r1~"&"~r2 => AND(r1, r2) }
 		| register 
-		| function )
+		| function 
+		| value )
 	def function: Parser[Value] = ( "("~>expression<~")" 
 		| "lsh("~>expression<~")" ^^ (LeftShift(_)) 
 		| "rsh("~>expression<~")" ^^ (RightShift(_))
-		| "-"~>register ^^ (Negate(_)))
+		| "~"~>register ^^ (Negate(_)))
 	def label: Parser[Label] = labelName<~":"
 	def labelName: Parser[Label] = "[A-Z][A-Z0-9_]*".r ^^ (Label(_))
 	def memoryAccess: Parser[MemoryAccess] = "rd" ^^ (m => ReadMemory() ) | "wr" ^^ (m => WriteMemory() )
@@ -88,16 +90,16 @@ class Micro16Parser extends JavaTokenParsers {
 					ifZero(reg, neg, label) 
 				else 
 					ifNegative(reg, neg, label) } )
-	def negate: Parser[Boolean] = "-" ^^ (x => true) | "" ^^ (x => false)
+	def negate: Parser[Boolean] = "~" ^^ (x => true) | "" ^^ (x => false)
 	def condType: Parser[String] = "Z" | "N"
 	def emptyLine: Parser[Statement] = """^\s*$""".r ^^ (s => new Statement())
 }
 
 object State {
-	val pMaxRegister = 15
+	val pMaxRegister = 10
 	val registers = new Array[Short](pMaxRegister + 3)
-	val pMAR: Short = 16
-	val pMBR: Short = 17
+	val pMAR: Short = (pMaxRegister + 1).toShort
+	val pMBR: Short = (pMaxRegister + 2).toShort
 	def MAR = registers(pMAR)
 	def MAR_= (newVal: Short) { registers(pMAR) = newVal }
 	def MBR = registers(pMBR)
@@ -134,9 +136,6 @@ object State {
 
 	def reset() {
 		(0 to (pMaxRegister + 2)).foreach(n => registers(n) = 0xDEAD.toShort)
-		registers(0) =  0
-		registers(1) =  1
-		registers(2) = -1
 		(0 to 1023).foreach(n => flash(n) = 0xDEAD.toShort)
 		labels.clear()
 		execPointer = 0

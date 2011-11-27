@@ -1,14 +1,14 @@
-R4 <- (R1 + R1)
+R4 <- (1 + 1)
 R4 <- lsh(R4 + R4)
-R4 <- (R4 + R2)
-R3 <- R1
+R4 <- (R4 + -1)
+R3 <- 1
 L:
 MAR <- (R3 + R4); rd
-R4 <- (R4 + R2)
+R4 <- (R4 + -1)
 R3 <- (R3+R3)
-MBR <- R0
-R20 <- MBR
-(-R4); if N goto L
-MAR <- R0; MBR <- R3; wr
-MBR <- R0
-MAR <- R0; rd
+MBR <- 0
+R10 <- MBR
+(~R4); if N goto L
+MAR <- 0; MBR <- R3; wr
+MBR <- 0
+MAR <- 0; rd
