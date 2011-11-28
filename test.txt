@@ -3,9 +3,9 @@ R10 <- lsh(R10)
 R4 <- -2
 
 
-R6 <- (R4 & R10)	// check if R4 is negative / save MSB
-R4 <- lsh(R4)		// shift R4 to left
+R6 <- (R4 & R10)	# check if R4 is negative / save MSB
+R4 <- lsh(R4)		# shift R4 to left
 R7 <- ~R10			
-R4 <- (R4 & R7) 	// get everything except MSB - discard sign
-R4 <- (R4 + R6)		// add MSB again, ie make sure the number in R4 keeps it sign
- // we just multiplied R4 by two
+R4 <- (R4 & R7) 	# get everything except MSB - discard sign
+R4 <- (R4 + R6)		# add MSB again, ie make sure the number in R4 keeps it sign
+ # we just multiplied R4 by two

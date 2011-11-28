@@ -1,4 +1,4 @@
-R3 <- 5	// memory adress of our numbers
+R3 <- 5						# memory adress of our numbers
 MAR <- 5; MBR <- 87; wr
 MAR <- 6; MBR <- 832; wr
 MAR <- 7; MBR <- 3; wr
@@ -9,8 +9,8 @@ MAR <- 10; MBR <- 23; wr
 MAR <- 11; MBR <- 230; wr
 MAR <- 12; MBR <- 999; wr
 
-R4 <- lsh(1 + 1) 	// 4
-R4 <- (R4 + R4)		// 8
+R4 <- lsh(1 + 1) 			# 4
+R4 <- (R4 + R4)				# 8
 R7 <- 0
 
 START:

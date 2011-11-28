@@ -1,25 +1,26 @@
-MAR <- 16; MBR <- 24; wr 	// for testing purposes
+MAR <- 16; MBR <- 24; wr 	# for testing purposes
 
-R3 <- lsh(1 + 1) // divisor
-R3 <- (R3 + 1)   // 5
+R3 <- lsh(1 + 1) 			# divisor
+R3 <- (R3 + 1)   			# 5
 R3 <- ~R3
-R3 <- (R3 + 1) // for our algorithm, we need to negate this
+R3 <- (R3 + 1) 				# for our algorithm, we need to negate this
 
-R6 <- R0		// our result
+R6 <- R0					# our result
 
-R4 <- lsh(1 + 1) // 4
-R4 <- lsh(R4 + R4) // 16, our memory adress
+R4 <- lsh(1 + 1) 			# 4
+R4 <- lsh(R4 + R4) 			# 16, our memory adress
 
 MAR <- R4; rd
 rd
-R5 <- MBR  	// this is the number we want to divide
+R5 <- MBR  					# this is the number we want to divide
 
 START:
-R5 <- (R5 + R3) // substract divisor
+R5 <- (R5 + R3) 			# substract divisor
 R6 <- (R6 + 1) 
-(~R5); if N goto START // repeat until R5 becomes negative
-R6 <- (R6 + -1) // substract one from result since we iterate one time too often
+(~R5); if N goto START 		# repeat until R5 becomes negative
+R6 <- (R6 + -1) 			# substract one from result since we iterate one 
+							# time too often
 
-R4 <- (R4 + 1) 	// increment to 17 for result adress
-MAR <- R4; MBR <- R6; wr // write our result back
+R4 <- (R4 + 1) 				# increment to 17 for result adress
+MAR <- R4; MBR <- R6; wr 	# write our result back
 wr

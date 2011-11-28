@@ -1,17 +1,17 @@
-R4 <- 10		// test input
-//R4 <- ~R4
+R4 <- 10		# test input
+#R4 <- ~R4
 R5 <- 12
-//R5 <- ~R5
+#R5 <- ~R5
 
-	// algorithm: def greater(a: Int, b: Int) = if(a - b < 0) b else a
+	# algorithm: def greater(a: Int, b: Int) = if(a - b < 0) b else a
 R7 <- ~R5
-R7 <- (R7 + 1)	// need to negate so we can substract
+R7 <- (R7 + 1)			# need to negate so we can substract
 R8 <- (R4 + R7)
 
-(R8); if N goto NEG 	// this is the if < 0
-R6 <- R4	// positive --> a
+(R8); if N goto NEG 	# this is the if < 0
+R6 <- R4				# positive --> a
 goto END
 NEG:
-R6 <- R5	// negative --> b
+R6 <- R5				# negative --> b
 
 END:

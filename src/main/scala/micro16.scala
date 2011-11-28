@@ -150,7 +150,7 @@ object Micro16Simulator extends Micro16Parser {
 		State.reset()
 		codeGraph = code.split('\n').zipWithIndex.map( l => {
 			var s = new Statement()
-			val line = l._1.split("//")(0) // strip comments
+			val line = l._1.split("#")(0) // strip comments
 			try { s = parseAll(statement, line).get }
 			catch {
 				case e: Exception => 

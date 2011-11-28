@@ -19,11 +19,12 @@ object Micro16SimulatorGUI extends SwingApplication {
 				val stepButton = new Button { text = "Step "}
 				val reloadButton = new Button { text = "Reload code" }
 				val textArea =  new TextArea(io.Source.fromFile(src).mkString)
-				val lineNumber = new ListView( (1 to textArea.text.lines.length + 1).map("%02d \n".format(_))) {
+				val lineNumber = new ListView( (1 to textArea.text.lines.length + 75).map("%02d \n".format(_))) {
 					fixedCellHeight = 15
 					font = new Font("Droid Sans Mono Dotted", 0, 12)
 				}
 				lineNumber.yLayoutAlignment = 1.0
+				lineNumber.xLayoutAlignment = 1.0
 				contents += new BoxPanel(Orientation.Vertical) {
 					contents += new TabbedPane() {
 						pages += new TabbedPane.Page(src,
